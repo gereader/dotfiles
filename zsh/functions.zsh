@@ -34,17 +34,24 @@ new-worktree() {
 # Remove worktree and the associated branch
 rm-worktree() {
     local branch_name=$1
-    # Get the git repository root directory
-    local repo_root=$(git rev-parse --show-toplevel)
+    local current_pwd=$(pwd)
+
+    # If we're inside a worktrees directory, go up to the main repo
+    if [[ "$current_pwd" == *"/worktrees/"* ]]; then
+        # Extract everything before "/worktrees/" 
+        local main_repo=$(echo "$current_pwd" | sed 's|/worktrees/.*||')
+    else
+       local main_repo="$current_pwd"
+    fi
 
     # Move back to root
-    cd "$repo_root"
+    cd "$main_repo"
 
     if [[ -d "$repo_root/worktrees/$branch_name" ]]; then
-        git worktree remove "$repo_root/worktrees/$branch_name"
+        git worktree remove "$main_repo/worktrees/$branch_name"
         echo "Removed worktree: $branch_name"
     else
-        echo "Worktree '$repo_root/worktrees/$branch_name' not found"
+        echo "Worktree '$main_repo/worktrees/$branch_name' not found"
     fi
 }
 
