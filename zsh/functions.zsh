@@ -1,3 +1,36 @@
+
+# Setup Activate scripts for worktrees
+create-activation-scripts() {
+    local worktree_path="$1"
+    local branch_name="$2"
+    
+    # Save original PYTHONPATH for restoration
+    cat > "$worktree_path/activate.sh" << EOF
+#!/bin/bash
+# Save original PYTHONPATH
+export ORIGINAL_PYTHONPATH="\$PYTHONPATH"
+# Prepend worktree path (worktree takes precedence, but original is fallback)
+export PYTHONPATH=":$worktree_path\$PYTHONPATH"
+export WORKTREE_ACTIVE="$branch_name"
+echo "Activated worktree: $branch_name"
+echo "Worktree path: $worktree_path"
+EOF
+
+    cat > "$worktree_path/deactivate.sh" << EOF
+#!/bin/bash
+if [[ -n "\$ORIGINAL_PYTHONPATH" ]]; then
+    export PYTHONPATH="\$ORIGINAL_PYTHONPATH"
+    unset ORIGINAL_PYTHONPATH
+    unset WORKTREE_ACTIVE
+    echo "Deactivated worktree environment"
+else
+    echo "No worktree environment to deactivate"
+fi
+EOF
+
+    chmod +x "$worktree_path/activate.sh" "$worktree_path/deactivate.sh"
+}
+
 # Git worktree helper function, create worktree directory, checkout/create branch specified
 new-worktree() {
     local branch_name=$1
@@ -28,6 +61,8 @@ new-worktree() {
     # Auto-add safe directory after creating worktree
     git config --global --add safe.directory "$main_repo/worktrees/$branch_name"
 
+    create-activation-scripts "$main_repo/worktrees/$branch_name" $branch_name
+
     echo "Created worktree at: $main_repo/worktrees/$branch_name"
 }
 
@@ -47,7 +82,7 @@ rm-worktree() {
     # Move back to root
     cd "$main_repo"
 
-    if [[ -d "$repo_root/worktrees/$branch_name" ]]; then
+    if [[ -d "$main_repo/worktrees/$branch_name" ]]; then
         git worktree remove "$main_repo/worktrees/$branch_name"
         echo "Removed worktree: $branch_name"
     else
