@@ -90,6 +90,15 @@ rm-worktree() {
     fi
 }
 
+# Set up personal gitignore to exclude the activate/deactivate scripts for me locally
+if [ ! -f ~/.gitignore_global ]; then
+    touch ~/.gitignore_global
+    echo "activate.sh" >> ~/.gitignore_global
+    echo "deactivate.sh" >> ~/.gitignore_global
+    git config --global core.excludesfile ~/.gitignore_global
+fi
+
+
 # Stock price lookup, provide ticker symbol, case insensitive, this requires a finnhub api key
 stonks() {
     TICKER=$(echo "$1" | tr '[:lower:]' '[:upper:]')
