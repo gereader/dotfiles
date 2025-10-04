@@ -36,6 +36,10 @@ source ~/.zshrc
 
 **Note:** Create `~/.zshrc.local` on each machine for API keys and other secrets (not committed to git).
 
+```bash
+echo 'export FINNHUB_API_KEY="your_api_key_here"' >> ~/.zshrc.local
+```
+
 ## Features
 
 ### Shell Configuration
