@@ -1,0 +1,45 @@
+## Syntax highlighting for YAML files.
+
+syntax yaml "\.ya?ml$"
+header "^%YAML |^---( |$)"
+
+tabgives "  "
+comment "#"
+
+# Keys - cyan
+color brightcyan "(\w|::|[/.-])+:( |$)"
+color brightcyan "\[(\w|::|[/., -])+\]:( |$)"
+
+# Values (booleans, numbers, octal/hex) - magenta
+color brightmagenta "[:,] +(Y(es)?|No?|y(es)?|no?|[Tt]rue|[Ff]alse|[Oo](n|ff))( *[]}]|, | +#|$)"
+color brightmagenta "[:,] +[+-]?[0-9]+(\.([0-9]+)?)?( *[]}]|, | +#|$)"
+color brightmagenta " 0(o[0-7]+|x[[:xdigit:]]+)( *[]}]|, | +#|$)"
+color normal "[:,]( |$)"
+
+# Values (dates, strings) - yellow
+color yellow " [12][0-9]{3}-(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])"
+color yellow "("([^"]|\\")+"|'[^']+')"
+
+# Anchors and aliases - magenta
+color brightmagenta " [&*](\w|-)+( |$)"
+
+# Symbols - cyan/yellow
+color brightcyan "^(%YAML +[1-9]\.[0-9]$|%TAG |(---|\.\.\.)( |$))"
+color brightcyan " [|>]([1-9]?[+-]|[+-][1-9]?)?$"
+color yellow "^ *(\?|([?:] +)?-) "
+color yellow "[]{}[]"
+color normal "^ *: "
+
+# Tags - cyan
+color brightcyan " !!(binary|bool|float|int|map|null|omap|seq|set|str)( |,|$)"
+color brightcyan " ![^! 	][^ 	]*( |$)"
+
+# Escaped characters - yellow
+color yellow "\\([0abefnrtv"/ \_NLP]|$)"
+color yellow "\\(x[[:xdigit:]]{2}|u[[:xdigit:]]{4}|U[[:xdigit:]]{8})"
+
+# Mistakes (control codes, trailing space) - red
+color ,red "[[:cntrl:]]| +$"
+
+# Comments - blue
+color brightblue "(^| )#.*"

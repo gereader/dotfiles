@@ -1,0 +1,49 @@
+## Syntax highlighting for Python.
+
+syntax python "\.py$"
+header "^#!.*python"
+magic "Python script"
+comment "#"
+
+# Alternative linter: pylint --exit-zero
+linter pyflakes
+
+# Function definitions - cyan (VS Code uses cyan for functions)
+color brightcyan "def [[:alnum:]_]+"
+
+# Class definitions - yellow/orange 
+color brightyellow "class [[:alnum:]_]+"
+
+# Keywords - magenta/purple (Palenight keywords)
+color brightmagenta "\<(and|as|assert|async|await|break|class|continue)\>"
+color brightmagenta "\<(def|del|elif|else|except|finally|for|from)\>"
+color brightmagenta "\<(global|if|import|in|is|lambda|nonlocal|not|or)\>"
+color brightmagenta "\<(pass|raise|return|try|while|with|yield)\>"
+color brightmagenta "\<(exec|print)([[:blank:]]|$)"
+
+# Special values - yellow/orange
+color brightyellow "\<(False|None|True)\>"
+
+# Decorators - cyan
+color brightcyan "@[[:alpha:]_][[:alnum:]_.]*"
+
+# Strings - yellow (different from the bright green that was blending)
+color yellow "'([^'\]|\\.)*'|"([^"\]|\\.)*"|'''|""""
+color normal "'''|""""
+
+# Comments - gray/dim
+color brightblue "(^|[[:blank:]])#.*"
+
+# Triple-quoted strings - yellow
+color yellow start="'''([^'),]|$)" end="(^|[^(\])'''"
+color yellow start=""""([^"),]|$)" end="(^|[^(\])""""
+
+# Backslash escapes - keep lime for now
+color lime "\\($|[\'"abfnrtv]|[0-3]?[0-7]?[0-7]|x[[:xdigit:]]{2})"
+color lime "\\(N\{[[:alpha:]]+\}|u[[:xdigit:]]{4}|U[[:xdigit:]]{8})"
+
+# Reminders - keep as is
+color brightwhite,yellow "\<(FIXME|TODO|XXX)\>"
+
+# Trailing whitespace - keep as is
+color ,green "[[:space:]]+$"
