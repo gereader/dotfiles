@@ -61,13 +61,17 @@ if command -v eza &> /dev/null; then
     alias tree='eza --tree'
 fi
 
+# --- Comfort Aliases ---
+# Quickly delete all __pycache__ folders in the current directory tree
+alias delete-python-cache='find . -type d -name "__pycache__" -exec rm -r {} +'
+
 # --- ZSH Enhancements ---
 # Syntax highlighting: colors valid/invalid commands as you type
 if [ -f $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]; then
     source $(brew --prefix)/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 fi
 
-# Auto-suggestions: suggests commands based on history (use right arrow to accept)
+# Auto-suggestions: suggests commands based on history
 if [ -f $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]; then
     source $(brew --prefix)/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 fi

@@ -15,6 +15,10 @@ ln -s ~/Developer/personal/dotfiles/nano ~/.nano
 # Set up local secrets (not tracked in git)
 touch ~/.zshrc.local
 chmod 600 ~/.zshrc.local
+
+# Tell nano to use nano syntax files
+echo 'include ~/.nano/*.nanorc' >> ~/.nanorc
+
 # Add your API keys and secrets:
 # echo 'export FINNHUB_API_KEY="your-key-here"' >> ~/.zshrc.local
 
@@ -69,6 +73,9 @@ The included iTerm2 profile features Palenight colors with custom adjustments:
 Install these via Homebrew for full functionality:
 
 ```bash
+# Install Nano (Mac uses PICO by default)
+brew install nano
+
 # Syntax highlighting for terminal commands
 brew install zsh-syntax-highlighting
 
