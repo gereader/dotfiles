@@ -34,9 +34,15 @@ setopt PROMPT_SUBST
 PROMPT='%F{blue}%~%f %F{magenta}${vcs_info_msg_0_}%f$ '
 
 # --- History Configuration ---
-# Keep 10,000 commands in history
-HISTSIZE=10000
-SAVEHIST=10000
+export HISTSIZE=1000000
+export SAVEHIST=1000000
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_FIND_NO_DUPS
+setopt HIST_REDUCE_BLANKS
+
+# Create an alias for searching history
+alias hg='history | grep'
+
 # Share history across all terminal sessions
 setopt SHARE_HISTORY
 
@@ -88,3 +94,8 @@ fi
 if [ -f ~/.zshrc.local ]; then
     source ~/.zshrc.local
 fi
+### MANAGED BY RANCHER DESKTOP START (DO NOT EDIT)
+export PATH="/Users/greader/.rd/bin:$PATH"
+### MANAGED BY RANCHER DESKTOP END (DO NOT EDIT)
+
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
