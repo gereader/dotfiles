@@ -88,6 +88,30 @@ if [ -f ~/Developer/personal/dotfiles/zsh/functions.zsh ]; then
     source ~/Developer/personal/dotfiles/zsh/functions.zsh
 fi
 
+
+# Transcribe a video/audio file with Whisper.cpp
+transcribe() {
+    if [ -z "$1" ]; then
+        echo "Usage: transcribe <input-file>"
+        return 1
+    fi
+
+    INPUT="$1"
+    BASENAME="${INPUT%.*}"
+    WAVFILE="${BASENAME}.wav"
+    OUTFILE="${BASENAME}"
+    MODEL="$WHISPER_CPP_MODEL_DIR/ggml-large-v3.bin"
+
+    # Extract audio
+    ffmpeg -i "$INPUT" -vn -ac 1 -ar 16000 -f wav "$WAVFILE"
+
+    # Run whisper
+    whisper-cli -m "$MODEL" -mc 32 -otxt -of "$OUTFILE" "$WAVFILE"
+
+    echo "Done. Transcript saved to: $OUTFILE"
+}
+
+
 # --- Local Secrets ---
 # Load machine-specific secrets and API keys (not tracked in git)
 # Create ~/.zshrc.local and add: export FINNHUB_API_KEY="your-key"
