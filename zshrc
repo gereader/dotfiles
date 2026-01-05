@@ -98,17 +98,26 @@ transcribe() {
 
     INPUT="$1"
     BASENAME="${INPUT%.*}"
-    WAVFILE="${BASENAME}.wav"
+    WAVFILE="/tmp/whisper-${BASENAME}.wav"
     OUTFILE="${BASENAME}"
     MODEL="$WHISPER_CPP_MODEL_DIR/ggml-large-v3.bin"
 
+    # Make Sure Whisper model exists
+    if [ ! -f "$MODEL" ]; then
+        echo "Whisper model not found: $MODEL"
+        return 1
+    fi
+
     # Extract audio
-    ffmpeg -i "$INPUT" -vn -ac 1 -ar 16000 -f wav "$WAVFILE"
+    ffmpeg -i "$INPUT" -vn -ac 1 -ar 16000 -f wav "$WAVFILE" || return 1
 
     # Run whisper
-    whisper-cli -m "$MODEL" -mc 32 -otxt -of "$OUTFILE" "$WAVFILE"
+    whisper-cli -m "$MODEL" -mc 32 -pp -otxt -of "$OUTFILE" "$WAVFILE"
 
-    echo "Done. Transcript saved to: $OUTFILE"
+    # Cleanup
+    rm -f "$WAVFILE"
+
+    echo "Done. Transcript saved to: $OUTFILE.txt"
 }
 
 
