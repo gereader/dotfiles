@@ -36,6 +36,7 @@ source ~/.zshrc
 - `nano/` - Nano syntax highlighting (Python, Bash, YAML, JSON) with Palenight colors
 - `zsh/functions.zsh` - Custom shell functions (stonks, wireshark-open)
 - `iterm2/` - iTerm2 Palenight color profile
+- `claude/` - Claude Code configuration (status line script)
 - `zshrc.local.example` - Template for local machine secrets
 
 **Note:** Create `~/.zshrc.local` on each machine for API keys and other secrets (not committed to git).
@@ -88,6 +89,30 @@ brew install grc
 ```
 
 The dotfiles already include aliases for `bat` and `eza` if installed.
+
+## Claude Code
+
+The `claude/` directory contains configuration for [Claude Code](https://claude.ai/code).
+
+### Status Line
+
+`claude/statusline.sh` is a custom status line script showing:
+- Model name and context window usage (color-coded: green/orange/red by threshold)
+- Rate limit usage for 5-hour and 7-day windows with reset timers
+- Current working directory and git branch/dirty state
+
+To wire it up, set the following in `~/.claude/settings.json`:
+
+```json
+{
+  "statusLine": {
+    "type": "command",
+    "command": "/Users/yourname/Developer/personal/dotfiles/claude/statusline.sh"
+  }
+}
+```
+
+Uses Catppuccin Mocha colors. Requires `jq` to be installed.
 
 ## License
 
