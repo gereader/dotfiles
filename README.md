@@ -84,6 +84,9 @@ brew install zsh-syntax-highlighting
 brew install bat  # Syntax-highlighted 'cat' replacement
 brew install eza  # Modern 'ls' replacement with colors and icons
 
+# Required for Claude Code status line
+brew install jq
+
 # Optional: Generic colorizer for various commands
 brew install grc
 ```
@@ -97,22 +100,32 @@ The `claude/` directory contains configuration for [Claude Code](https://claude.
 ### Status Line
 
 `claude/statusline.sh` is a custom status line script showing:
-- Model name and context window usage (color-coded: green/orange/red by threshold)
+- Model name and context window usage (color-coded green/orange/red by threshold)
 - Rate limit usage for 5-hour and 7-day windows with reset timers
 - Current working directory and git branch/dirty state
 
-To wire it up, set the following in `~/.claude/settings.json`:
+**Setup:**
 
-```json
-{
-  "statusLine": {
-    "type": "command",
-    "command": "/Users/yourname/Developer/personal/dotfiles/claude/statusline.sh"
-  }
-}
-```
+1. Clone this repo (or ensure it's at `~/Developer/personal/dotfiles`)
+2. Make the script executable:
+   ```bash
+   chmod +x ~/Developer/personal/dotfiles/claude/statusline.sh
+   ```
+3. Add the following to `~/.claude/settings.json` (update the path to match where you cloned this repo):
+   ```json
+   {
+     "statusLine": {
+       "type": "command",
+       "command": "/Users/yourname/Developer/personal/dotfiles/claude/statusline.sh"
+     }
+   }
+   ```
+4. Install the `jq` dependency if not already present:
+   ```bash
+   brew install jq
+   ```
 
-Uses Catppuccin Mocha colors. Requires `jq` to be installed.
+Uses [Catppuccin Mocha](https://github.com/catppuccin/catppuccin) colors.
 
 ## License
 
