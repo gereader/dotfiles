@@ -12,6 +12,7 @@ cd ~/Developer/personal/dotfiles
 ln -s ~/Developer/personal/dotfiles/zshrc ~/.zshrc
 ln -s ~/Developer/personal/dotfiles/nano ~/.nano
 ln -s ~/Developer/personal/dotfiles/claude/skills ~/.claude/skills
+ln -s ~/Developer/personal/dotfiles/codex/skills ~/.codex/skills
 
 # Set up local secrets (not tracked in git)
 touch ~/.zshrc.local
@@ -38,6 +39,7 @@ source ~/.zshrc
 - `zsh/functions.zsh` - Custom shell functions (stonks, wireshark-open)
 - `iterm2/` - iTerm2 Palenight color profile
 - `claude/` - Claude Code configuration (status line, custom skills)
+- `codex/` - OpenAI Codex configuration (custom skills)
 - `zshrc.local.example` - Template for local machine secrets
 
 **Note:** Create `~/.zshrc.local` on each machine for API keys and other secrets (not committed to git).
@@ -180,6 +182,73 @@ Instructions for Claude go here. Use $ARGUMENTS to access user input.
    ```
 
 Uses [Catppuccin Mocha](https://github.com/catppuccin/catppuccin) colors.
+
+## OpenAI Codex
+
+The `codex/` directory contains configuration for [OpenAI Codex](https://openai.com/codex).
+
+### Skills (Custom Commands)
+
+Custom skills that work across all projects. Each skill is a directory under `codex/skills/` containing a `SKILL.md` file.
+
+**Available skills:**
+
+| Skill | Command | Description |
+|-------|---------|-------------|
+| **grill-me** | `$grill-me [topic]` | Guided discovery session — asks smart questions to build a complete picture of what you're working on. Produces a summary doc in `docs/`. |
+| **write-spec** | `$write-spec [project]` | Produces a structured project spec with requirements, architecture, and scope. Generates/updates AGENTS.md and architecture docs. |
+| **spec-to-tasks** | `$spec-to-tasks [spec path]` | Converts a spec into a dependency-aware `TASKS.md` with task IDs, parallel/sequential markers, and a parallel work guide. |
+| **audit-project** | `$audit-project [path]` | Maps an existing codebase — reads everything and produces AGENTS.md + architecture docs. Run this before `$write-spec` on projects with existing code. |
+| **create-skill** | `$create-skill [name]` | Meta-skill for creating new Codex skills. Runs guided discovery to understand what you want, then generates the SKILL.md file. |
+
+**Typical workflow:**
+1. `$audit-project` — map an existing project (or skip for greenfield)
+2. `$grill-me` — explore the problem space, produce a summary
+3. `$write-spec` — formalize into a spec with AGENTS.md and architecture docs
+4. `$spec-to-tasks` — break the spec into actionable tasks with dependency info
+
+**Setup on a new machine:**
+
+```bash
+# Create the symlink so Codex discovers the skills
+ln -s ~/Developer/personal/dotfiles/codex/skills ~/.codex/skills
+
+# Verify skills are available
+ls ~/.codex/skills/
+```
+
+**Creating new skills:**
+
+Use `$create-skill` inside Codex, or manually:
+1. Create a directory under `codex/skills/<skill-name>/`
+2. Add a `SKILL.md` file with YAML frontmatter and prompt instructions
+3. The skill appears as `$<skill-name>` in Codex
+
+```yaml
+# Minimal SKILL.md example
+---
+name: my-skill
+description: What this skill does and when to use it
+---
+
+Instructions for the agent go here. Use $ARGUMENTS to access user input.
+```
+
+### Claude Code vs Codex: Key Differences
+
+These skills are functionally identical to the ones in `claude/skills/`, but adapted for Codex's conventions:
+
+| Aspect | Claude Code (`claude/`) | Codex (`codex/`) |
+|--------|------------------------|------------------|
+| **Skills location** | `~/.claude/skills/` | `~/.codex/skills/` |
+| **Invocation prefix** | `/skill-name` | `$skill-name` |
+| **Project instructions** | `CLAUDE.md` | `AGENTS.md` |
+| **Scope model** | Project-level (per repo) | User-level (global) |
+| **Auto-invoke control** | `disable-model-invocation: true` in frontmatter | `allow_implicit_invocation: false` in `agents/openai.yaml` |
+| **Argument hint** | `argument-hint` frontmatter field | Described in `description` field |
+| **Config format** | JSON (`settings.json`) | TOML (`config.toml`) |
+
+**Important scoping difference:** Claude Code skills live in `.claude/skills/` inside a project — they can assume project context. Codex skills live in `~/.codex/skills/` globally — they're shared across all projects. The skills in this repo are designed to be project-agnostic (they detect context at runtime).
 
 ## License
 
