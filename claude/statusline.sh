@@ -8,17 +8,17 @@ jget() {
   jq -r "$1 // empty" <<<"$input" 2>/dev/null || true
 }
 
-# Line 1: model | context | time
+# ── Line 1: model | ctx % | ctx x/1000k ──────────────────────────────────────
+
 model=$(jget '.model.display_name')
 [ -n "$model" ] || model="unknown"
+# Strip parenthetical suffixes like "(1M Context)" from model name
+model=$(sed 's/ ([^)]*[Cc]ontext)//g' <<<"$model")
 
 used_pct=$(jget '.context_window.used_percentage')
-
-if [[ -n "${used_pct:-}" && "$used_pct" != "null" ]]; then
-  context_str=$(awk "BEGIN { printf \"ctx %.0f%%\", $used_pct }")
-else
-  context_str="no context"
-fi
+ctx_window_size=$(jget '.context_window.context_window_size')
+ctx_total_input=$(jget '.context_window.total_input_tokens')
+ctx_total_output=$(jget '.context_window.total_output_tokens')
 
 # Determine context color based on threshold (Catppuccin Mocha)
 if [[ -n "${used_pct:-}" && "$used_pct" != "null" ]]; then
@@ -28,15 +28,44 @@ if [[ -n "${used_pct:-}" && "$used_pct" != "null" ]]; then
     else if (pct >= 45) print \"\033[38;2;250;179;135m\"
     else print \"\033[38;2;166;227;161m\"
   }")
+  context_pct_str=$(awk "BEGIN { printf \"ctx %.0f%%\", $used_pct }")
 else
   ctx_color=$'\033[38;2;166;227;161m'
+  context_pct_str="ctx --"
 fi
 
-printf '\033[95m%s\033[0m \033[90m|\033[0m %s%s\033[0m\n' "$model" "$ctx_color" "$context_str"
+# Build "x/1000k" token count section (input + output = total used)
+if [[ -n "${ctx_total_input:-}" && "$ctx_total_input" != "null" && \
+      -n "${ctx_window_size:-}" && "$ctx_window_size" != "null" ]]; then
+  ctx_abs_str=$(awk "BEGIN {
+    used_k = int(($ctx_total_input + 0${ctx_total_output:-0}) / 1000)
+    total_k = int($ctx_window_size / 1000)
+    printf \"%dk/%dk\", used_k, total_k
+  }")
+elif [[ -n "${used_pct:-}" && "$used_pct" != "null" && \
+        -n "${ctx_window_size:-}" && "$ctx_window_size" != "null" ]]; then
+  # Fallback: derive used tokens from percentage
+  ctx_abs_str=$(awk "BEGIN {
+    used_k = int(($used_pct / 100) * $ctx_window_size / 1000)
+    total_k = int($ctx_window_size / 1000)
+    printf \"%dk/%dk\", used_k, total_k
+  }")
+else
+  ctx_abs_str=""
+fi
 
-# Line 2: rate limit usage (only shown when data is available)
+if [[ -n "$ctx_abs_str" ]]; then
+  printf '\033[95m%s\033[0m \033[90m|\033[0m %s%s\033[0m \033[90m|\033[0m %s%s\033[0m\n' \
+    "$model" "$ctx_color" "$context_pct_str" "$ctx_color" "$ctx_abs_str"
+else
+  printf '\033[95m%s\033[0m \033[90m|\033[0m %s%s\033[0m\n' "$model" "$ctx_color" "$context_pct_str"
+fi
+
+# ── Line 2: rate limit usage with token counts ────────────────────────────────
+
 five_pct=$(jget '.rate_limits.five_hour.used_percentage')
 five_resets=$(jget '.rate_limits.five_hour.resets_at')
+
 week_pct=$(jget '.rate_limits.seven_day.used_percentage')
 week_resets=$(jget '.rate_limits.seven_day.resets_at')
 
@@ -74,12 +103,13 @@ pct_color() {
   }"
 }
 
+
 if [[ -n "${five_pct:-}" && "$five_pct" != "null" ]]; then
   reset_str=$(format_reset "$five_resets")
   color=$(pct_color "$five_pct")
   label=$(awk "BEGIN { printf \"%.0f%%\", $five_pct }")
   part="${color}5h: ${label}\033[0m"
-  [[ -n "$reset_str" ]] && part="${part} \033[90m(resets ${reset_str})\033[0m"
+  [[ -n "$reset_str" ]] && part="${part} \033[38;2;180;190;254m↺ ${reset_str}\033[0m"
   rate_parts+=("$part")
 fi
 
@@ -88,7 +118,7 @@ if [[ -n "${week_pct:-}" && "$week_pct" != "null" ]]; then
   color=$(pct_color "$week_pct")
   label=$(awk "BEGIN { printf \"%.0f%%\", $week_pct }")
   part="${color}7d: ${label}\033[0m"
-  [[ -n "$reset_str" ]] && part="${part} \033[90m(resets ${reset_str})\033[0m"
+  [[ -n "$reset_str" ]] && part="${part} \033[38;2;180;190;254m↺ ${reset_str}\033[0m"
   rate_parts+=("$part")
 fi
 
