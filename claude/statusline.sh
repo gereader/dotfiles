@@ -8,6 +8,19 @@ jget() {
   jq -r "$1 // empty" <<<"$input" 2>/dev/null || true
 }
 
+# Detect true color support (iTerm2/modern terminals set COLORTERM=truecolor)
+if [[ "${COLORTERM:-}" == "truecolor" || "${COLORTERM:-}" == "24bit" ]]; then
+  C_GREEN=$'\033[38;2;166;227;161m'   # Catppuccin Mocha green
+  C_YELLOW=$'\033[38;2;250;179;135m'  # Catppuccin Mocha peach
+  C_RED=$'\033[38;2;243;139;168m'     # Catppuccin Mocha red
+  C_LAVENDER=$'\033[38;2;180;190;254m' # Catppuccin Mocha lavender
+else
+  C_GREEN=$'\033[92m'
+  C_YELLOW=$'\033[93m'
+  C_RED=$'\033[91m'
+  C_LAVENDER=$'\033[94m'
+fi
+
 # ── Line 1: model | ctx % | ctx x/1000k ──────────────────────────────────────
 
 model=$(jget '.model.display_name')
@@ -22,15 +35,15 @@ ctx_total_output=$(jget '.context_window.total_output_tokens')
 
 # Determine context color based on threshold (Catppuccin Mocha)
 if [[ -n "${used_pct:-}" && "$used_pct" != "null" ]]; then
-  ctx_color=$(awk "BEGIN {
+  ctx_color=$(awk -v red="$C_RED" -v yellow="$C_YELLOW" -v green="$C_GREEN" "BEGIN {
     pct = $used_pct
-    if (pct >= 75) print \"\033[38;2;243;139;168m\"
-    else if (pct >= 45) print \"\033[38;2;250;179;135m\"
-    else print \"\033[38;2;166;227;161m\"
+    if (pct >= 75) print red
+    else if (pct >= 45) print yellow
+    else print green
   }")
   context_pct_str=$(awk "BEGIN { printf \"ctx %.0f%%\", $used_pct }")
 else
-  ctx_color=$'\033[38;2;166;227;161m'
+  ctx_color="$C_GREEN"
   context_pct_str="ctx --"
 fi
 
@@ -55,10 +68,10 @@ else
 fi
 
 if [[ -n "$ctx_abs_str" ]]; then
-  printf '\033[95m%s\033[0m \033[90m|\033[0m %s%s\033[0m \033[90m|\033[0m %s%s\033[0m\n' \
+  printf '\033[95m%b\033[0m \033[90m|\033[0m %b%b\033[0m \033[90m|\033[0m %b%b\033[0m\n' \
     "$model" "$ctx_color" "$context_pct_str" "$ctx_color" "$ctx_abs_str"
 else
-  printf '\033[95m%s\033[0m \033[90m|\033[0m %s%s\033[0m\n' "$model" "$ctx_color" "$context_pct_str"
+  printf '\033[95m%b\033[0m \033[90m|\033[0m %b%b\033[0m\n' "$model" "$ctx_color" "$context_pct_str"
 fi
 
 # ── Line 2: rate limit usage with token counts ────────────────────────────────
@@ -95,11 +108,11 @@ format_reset() {
 
 pct_color() {
   local pct="$1"
-  awk "BEGIN {
+  awk -v red="$C_RED" -v yellow="$C_YELLOW" -v green="$C_GREEN" "BEGIN {
     p = $pct
-    if (p >= 75) print \"\033[38;2;243;139;168m\"
-    else if (p >= 45) print \"\033[38;2;250;179;135m\"
-    else print \"\033[38;2;166;227;161m\"
+    if (p >= 75) print red
+    else if (p >= 45) print yellow
+    else print green
   }"
 }
 
@@ -109,7 +122,7 @@ if [[ -n "${five_pct:-}" && "$five_pct" != "null" ]]; then
   color=$(pct_color "$five_pct")
   label=$(awk "BEGIN { printf \"%.0f%%\", $five_pct }")
   part="${color}5h: ${label}\033[0m"
-  [[ -n "$reset_str" ]] && part="${part} \033[38;2;180;190;254m↺ ${reset_str}\033[0m"
+  [[ -n "$reset_str" ]] && part="${part} ${C_LAVENDER}↺ ${reset_str}\033[0m"
   rate_parts+=("$part")
 fi
 
@@ -118,7 +131,7 @@ if [[ -n "${week_pct:-}" && "$week_pct" != "null" ]]; then
   color=$(pct_color "$week_pct")
   label=$(awk "BEGIN { printf \"%.0f%%\", $week_pct }")
   part="${color}7d: ${label}\033[0m"
-  [[ -n "$reset_str" ]] && part="${part} \033[38;2;180;190;254m↺ ${reset_str}\033[0m"
+  [[ -n "$reset_str" ]] && part="${part} ${C_LAVENDER}↺ ${reset_str}\033[0m"
   rate_parts+=("$part")
 fi
 
