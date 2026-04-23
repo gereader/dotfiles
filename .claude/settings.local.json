@@ -1,7 +1,10 @@
 {
   "permissions": {
     "allow": [
-      "Read(//Users/greader/.claude/**)"
+      "Read(//Users/greader/.claude/**)",
+      "Bash(mv /Users/gene/.claude/CLAUDE.md /Users/gene/Developer/personal/dotfiles/claude/CLAUDE.md)",
+      "Bash(ln -s /Users/gene/Developer/personal/dotfiles/claude/CLAUDE.md /Users/gene/.claude/CLAUDE.md)",
+      "Read(//Users/gene/.claude/**)"
     ]
   }
 }

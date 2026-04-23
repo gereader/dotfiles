@@ -55,6 +55,6 @@ Keep it concise. This is an overview, not a detailed spec.
 
 ## Phase 3: Fork
 
-After saving the summary, ask the user: "Want me to keep going and build this out, or are you good for now?"
+After saving the summary, ask the user what's next. Name the natural follow-ups so they're one step away: "Want to run `/write-spec` to turn this into a structured spec, or are you good for now?"
 
-Don't push toward a specific next step — let the user decide what comes next.
+Don't push — the user may want something else entirely. Just surface the obvious next skill so it's not a guess.

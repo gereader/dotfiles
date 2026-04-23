@@ -59,6 +59,9 @@ High-level approach. How components fit together.
 ## Key Decisions
 - Decisions made and their rationale
 
+## Risks / Unknowns
+- Known unknowns and how we'll resolve them (e.g., unfamiliar library → spike before committing)
+
 ## Open Questions
 - Unresolved items
 
@@ -75,6 +78,19 @@ High-level approach. How components fit together.
 
 The CLAUDE.md should help Claude work effectively on this project — coding conventions, architecture decisions, key files, things to watch out for.
 
+## Step 4b: Decisions Log
+
+If the spec lists 2+ Key Decisions, seed `docs/decisions.md` with one ADR-lite entry per decision:
+
+```markdown
+## [short title]
+**Context:** what forced the choice
+**Decision:** what we picked
+**Consequences:** what this buys us and what it costs
+```
+
+Future decisions land there too, so reasoning accumulates as work progresses. Skip if 0–1 decisions (the spec itself is enough).
+
 ## Step 5: Architecture Docs
 
 **Always ensure architecture documentation exists after this step.**
@@ -86,4 +102,4 @@ Scale the docs to the project — a small CLI tool needs a paragraph, not a 10-p
 
 ## Step 6: Fork
 
-After saving everything, summarize what was created/updated and ask: "Want me to keep going and break this into tasks, or are you good for now?"
+After saving everything, summarize what was created/updated and ask: "Want to run `/spec-to-tasks` to break this into an actionable task list, or are you good for now?"
