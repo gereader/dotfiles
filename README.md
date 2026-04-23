@@ -120,7 +120,7 @@ Custom skills that work across all projects. Each skill is a directory under `cl
 | **grill-me** | `/grill-me [topic]` | Guided discovery session — asks smart questions to build a complete picture of what you're working on. Leads with assumptions, skips what it can already derive from context. Produces a summary doc in `docs/`. |
 | **write-spec** | `/write-spec [project]` | Produces a structured project spec with requirements, architecture, and scope. Generates/updates CLAUDE.md and architecture docs. Runs discovery inline if needed. |
 | **spec-to-tasks** | `/spec-to-tasks [spec path]` | Converts a spec into a dependency-aware `TASKS.md` with task IDs, parallel/sequential markers, and a parallel work guide for subagent delegation. |
-| **audit-project** | `/audit-project [path]` | Maps an existing codebase — reads everything and produces CLAUDE.md + architecture docs. Run this before `/write-spec` on projects with existing code. |
+| **audit-project** | `/audit-project [path] [--dry-run]` | Maps an existing codebase via parallel sub-agents and refreshes `docs/reference/*` (architecture, repo map, commands, env/config, ADR index). Upserts an `## AI reference map` block into CLAUDE.md so future sessions find it. `--dry-run` reports without writing. Run before `/write-spec` on existing projects. |
 | **create-skill** | `/create-skill [name]` | Meta-skill for creating new skills. Runs guided discovery to understand what you want, then generates the SKILL.md file. |
 
 **Typical workflow:**
@@ -207,7 +207,7 @@ Custom skills that work across all projects. Each skill is a directory under `co
 | **grill-me** | `$grill-me [topic]` | Guided discovery session — asks smart questions to build a complete picture of what you're working on. Produces a summary doc in `docs/`. |
 | **write-spec** | `$write-spec [project]` | Produces a structured project spec with requirements, architecture, and scope. Generates/updates AGENTS.md and architecture docs. |
 | **spec-to-tasks** | `$spec-to-tasks [spec path]` | Converts a spec into a dependency-aware `TASKS.md` with task IDs, parallel/sequential markers, and a parallel work guide. |
-| **audit-project** | `$audit-project [path]` | Maps an existing codebase — reads everything and produces AGENTS.md + architecture docs. Run this before `$write-spec` on projects with existing code. |
+| **audit-project** | `$audit-project [path] [--dry-run]` | Maps an existing codebase via parallel sub-agents and refreshes `docs/reference/*` (architecture, repo map, commands, env/config, ADR index). Upserts an `## AI reference map` block into AGENTS.md so future sessions find it. `--dry-run` reports without writing. Run before `$write-spec` on existing projects. |
 | **create-skill** | `$create-skill [name]` | Meta-skill for creating new Codex skills. Runs guided discovery to understand what you want, then generates the SKILL.md file. |
 
 **Typical workflow:**

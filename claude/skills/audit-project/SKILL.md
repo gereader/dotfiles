@@ -1,70 +1,123 @@
 ---
 name: audit-project
-description: Map an existing codebase — produce or update CLAUDE.md and architecture docs for what already exists
-disable-model-invocation: true
-argument-hint: "[path to project or focus area]"
+description: Map an existing repo and refresh AI reference docs under docs/reference/; wire discovery into CLAUDE.md. Use when onboarding to a codebase, refreshing architecture docs, or before /write-spec on existing code.
+argument-hint: "[path or focus area] [--dry-run]"
 ---
 
 # Audit Project
 
-You are mapping an existing project to produce comprehensive documentation that helps Claude (and the user) work effectively in the codebase.
+Refresh the AI-facing reference layer so future sessions navigate the repo without re-researching. Terse maps + pointers, not prose. Bullets, tables, paths.
 
-## Step 1: Explore
+Args: path or focus area (optional); `--dry-run` = survey + report only, no writes.
 
-**Read the project thoroughly:**
-- Project structure (directory tree, key files)
-- CLAUDE.md, README, existing docs
-- Package manifests, config files, CI/CD
-- Entry points, main modules, core business logic
-- Tests — what's covered, what's not
-- Dependencies and external integrations
+## Ground rules
 
-If `$ARGUMENTS` is provided, treat it as a path or focus area. Otherwise, audit the current working directory.
+- Claude owns `docs/reference/*` — full rewrite each run.
+- Never create `CLAUDE.md` unprompted if absent — report the gap.
+- Never modify `.gitignore`.
+- Style: ≤200 lines per doc. Maps, tables, paths. No narrative prose. Self-documenting names > explanation.
 
-**Don't ask questions during this phase.** The point is to map what exists, not to design something new. Just read and understand.
+## Phase 0 — Preflight
 
-## Step 2: Report Findings
+Record in a scratch digest:
 
-Present a brief summary to the user before writing anything:
-- What the project does (in your own words)
-- Key components and how they fit together
-- Tech stack and dependencies
-- Anything surprising, inconsistent, or notable
-- Gaps you noticed (missing tests, no error handling, undocumented APIs, etc.)
+1. Repo root (`git rev-parse --show-toplevel`). Abort if not a git repo.
+2. Discovery surfaces at root (yes/no): `CLAUDE.md`, `AGENTS.md`.
+3. `docs/` subtree: list subdirs + counts. Note presence of `docs/decisions/` or `docs/specs/` (don't audit their content — just flag in final report).
+4. Commit policy for Claude-specific files:
+   - `git ls-files --error-unmatch CLAUDE.md .claude 2>/dev/null` → if tracked, include in commit.
+   - `git check-ignore -q .claude CLAUDE.md` → if ignored, skip in commit.
+   - Else → write but leave unstaged; flag in final report.
+   - `docs/reference/*` always follows normal tracking.
+5. Print a 5-line preflight summary before fan-out.
 
-Ask the user if your understanding is correct and if there's anything to add before you write docs.
+## Phase 1 — Fan-out (parallel Explore agents)
 
-## Step 3: CLAUDE.md
+Dispatch in a single message. Each agent returns ≤120-line structured digest (markdown). Briefs self-contained (agents don't see this conversation). Adapt scopes to what actually exists — skip agents whose scope is absent.
 
-**Always ensure a CLAUDE.md exists after this step.**
+Default scopes:
 
-- If no CLAUDE.md exists: create one covering the full project.
-- If one exists: surgically update or append. Don't remove existing content that's still accurate.
+| Agent | Scope | Digest shape |
+|---|---|---|
+| `repo-map` | Top-level dirs, entry scripts, tracked vs gitignored | Dir → one-line role; entry points table |
+| `code-structure` | Main source tree: modules, public APIs, core logic | Module → purpose; public surface table |
+| `config-and-env` | Config files, env vars, secrets pattern | Env var → source → consumer; config file → owner |
+| `deps-and-build` | Package manifests, lockfiles, CI, build/test/lint/run commands | Stack summary; command table (build, test, lint, run) |
+| `docs-inventory` | `README`, `CLAUDE.md`, `AGENTS.md`, `docs/` | Per doc: path, purpose, last-updated signal, staleness flag |
 
-**CLAUDE.md should include:**
-- Project purpose and context
-- Directory structure overview
-- Key conventions (naming, patterns, code style)
-- How to build, run, and test
-- Important architectural decisions
-- Things to watch out for (gotchas, tech debt, sensitive areas)
+Expand only if warranted by repo shape (e.g. multi-app monorepo, MCP project, schema-heavy codebase). Don't invent agents for absent concerns.
 
-## Step 4: Architecture Docs
+## Phase 2 — Write reference docs
 
-**Always ensure architecture documentation exists in `docs/` after this step.**
+Target: `docs/reference/`. Full rewrite. Scope proportional to repo — small script may need only `overview.md`; larger project splits by concern.
 
-- If docs exist: update what's stale, preserve what's current.
-- If no docs exist: create them.
+Default set (write what's warranted, skip what isn't):
 
-**Architecture docs should cover:**
-- High-level system overview (components and their relationships)
-- Data flow (how data moves through the system)
-- Key abstractions and where they live
-- External dependencies and integrations
-- Diagrams described in text/markdown (component relationships, data flow)
+1. `architecture.md` — system shape: components, data flow. Diagram = ascii, ≤20 lines.
+2. `repo-map.md` — dir → role table. Tracked/gitignored flag. Entry points section.
+3. `commands.md` — build, test, lint, run, deploy commands. Preconditions + env.
+4. `env-and-config.md` — env vars, config files, secrets pattern.
+5. `decisions-index.md` — ADR table (only if `docs/decisions/` exists): number | title | status | governs.
 
-Scale to the project — don't write a 10-page doc for a 200-line script.
+Each doc ends with (only if the file exists):
 
-## Step 5: Summary
+```
+## Authoritative sources
+- [CLAUDE.md](../../CLAUDE.md) — project instructions
+- [spec title](../specs/file.md) §X — one-line what (if docs/specs/ present)
+```
 
-List what was created or updated, and note any areas that could use deeper investigation. Suggest `/write-spec` if the user is planning new work on this project.
+Style rules (enforce):
+- Bullets and tables > paragraphs.
+- Paths in backticks.
+- Grammar-optional if brevity wins. Dropped articles OK.
+- No "This document describes…" openers. Start with content.
+- ≤200 lines per file. If exceeds, split or link out.
+
+## Phase 3 — Discovery wiring
+
+For each discovery surface present at root (Phase 0), surgically upsert a single `## AI reference map` section. Idempotent — replace if present, insert near top otherwise.
+
+Block template:
+
+```markdown
+## AI reference map
+
+Before researching from scratch, read the relevant `docs/reference/*.md`:
+
+- Architecture & system shape: `docs/reference/architecture.md`
+- Repo layout: `docs/reference/repo-map.md`
+- Build/test/run commands: `docs/reference/commands.md`
+- Env & config: `docs/reference/env-and-config.md`
+- ADR index (if present): `docs/reference/decisions-index.md`
+
+Generated by `/audit-project`. Do not hand-edit — rerun the command instead.
+```
+
+Only include lines for files that were actually written in Phase 2.
+
+Targets (only if present): `CLAUDE.md`, `AGENTS.md`. If neither exists: report the gap. Do not create.
+
+## Phase 4 — CLAUDE.md content
+
+Separate from the reference-map block: if `CLAUDE.md` is missing **and** the repo has no `AGENTS.md` either, ask the user whether to create one covering project purpose, directory overview, conventions, build/test/run, gotchas. If either exists already: surgical updates only. Don't remove accurate content.
+
+## Phase 5 — Commit
+
+Respect Phase 0 commit policy:
+
+- Always stage-and-commit `docs/reference/*` and touched `CLAUDE.md`/`AGENTS.md` when tracked.
+- Claude-config files (`.claude/`): include iff already tracked. Never touch `.gitignore`.
+- Commit message: Conventional Commits — `docs(reference): refresh AI navigation maps`.
+- Never amend. Never push. Never `--no-verify`.
+- On `--dry-run`: skip writes and commit; print would-write list.
+
+## Phase 6 — Final report
+
+Print to user, ≤40 lines, in order:
+
+1. Files written (counts per category).
+2. Discovery wiring: updated / skipped / missing surfaces.
+3. Commit status: committed sha / unstaged (reason).
+4. Gaps flagged: missing CLAUDE.md/AGENTS.md, unaudited `docs/decisions/` or `docs/specs/` if present.
+5. Next actions: suggest `/write-spec` if the user is planning new work.
