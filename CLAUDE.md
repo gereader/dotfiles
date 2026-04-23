@@ -12,6 +12,7 @@ Personal macOS dotfiles: zsh configuration, nano syntax themes, iTerm2 profile, 
 # Symlink into place
 ln -s ~/Developer/personal/dotfiles/zshrc ~/.zshrc
 ln -s ~/Developer/personal/dotfiles/nano ~/.nano
+ln -s ~/Developer/personal/dotfiles/claude/CLAUDE.md ~/.claude/CLAUDE.md
 
 # Nano config
 echo 'include ~/.nano/*.nanorc' >> ~/.nanorc
@@ -54,6 +55,7 @@ export WHISPER_CPP_MODEL_DIR="$HOME/.local/share/whisper.cpp/models"
 
 ## Claude Code Config (`claude/`)
 
+- **`claude/CLAUDE.md`** — Global user instructions for Claude Code; symlinked to `~/.claude/CLAUDE.md`.
 - **`claude/statusline.sh`** — Custom status line showing model, context %, rate limits, and git state. Uses Catppuccin Mocha colors. Requires `jq`.
 
 To activate, point `~/.claude/settings.json` at the script:

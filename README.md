@@ -12,6 +12,7 @@ cd ~/Developer/personal/dotfiles
 ln -s ~/Developer/personal/dotfiles/zshrc ~/.zshrc
 ln -s ~/Developer/personal/dotfiles/nano ~/.nano
 ln -s ~/Developer/personal/dotfiles/claude/skills ~/.claude/skills
+ln -s ~/Developer/personal/dotfiles/claude/CLAUDE.md ~/.claude/CLAUDE.md
 ln -s ~/Developer/personal/dotfiles/codex/skills ~/.codex/skills
 
 # Set up local secrets (not tracked in git)
@@ -38,7 +39,7 @@ source ~/.zshrc
 - `nano/` - Nano syntax highlighting (Python, Bash, YAML, JSON) with Palenight colors
 - `zsh/functions.zsh` - Custom shell functions (stonks, wireshark-open)
 - `iterm2/` - iTerm2 Palenight color profile
-- `claude/` - Claude Code configuration (status line, custom skills)
+- `claude/` - Claude Code configuration (global `CLAUDE.md`, status line, custom skills)
 - `codex/` - OpenAI Codex configuration (custom skills)
 - `zshrc.local.example` - Template for local machine secrets
 
@@ -99,6 +100,14 @@ The dotfiles already include aliases for `bat` and `eza` if installed.
 ## Claude Code
 
 The `claude/` directory contains configuration for [Claude Code](https://claude.ai/code).
+
+### Global Instructions (`CLAUDE.md`)
+
+`claude/CLAUDE.md` holds global user instructions applied to every Claude Code session. Symlink it into place:
+
+```bash
+ln -s ~/Developer/personal/dotfiles/claude/CLAUDE.md ~/.claude/CLAUDE.md
+```
 
 ### Skills (Custom Slash Commands)
 
