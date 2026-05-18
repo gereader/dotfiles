@@ -1,0 +1,4 @@
+interface:
+  display_name: "Publish NICO Prod"
+  short_description: "Publish sanitized NICO prod snapshots"
+  default_prompt: "Use $publish-nico-prod to prepare and publish a sanitized NICO production snapshot."
