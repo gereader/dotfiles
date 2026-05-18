@@ -36,6 +36,65 @@ Never publish these to OCI:
 
 Push to OCI `main` only in explicit direct-publish mode, only with `--force-with-lease`, and only after verifying the new commit is based on current OCI `main`.
 
+## Commit Convention
+
+NICO uses Conventional Commits. The publish-nico-prod skill relies on these markers to detect version-bump scope. Commits that do not follow the convention may cause auto-suggested bumps to be wrong — the operator-confirmation step still catches it, but the suggestion is less useful.
+
+### Format
+
+    <type>(<optional-scope>): <subject>
+
+    <optional body>
+
+    <optional footer>
+
+Subject: imperative mood, lowercase, no trailing period, ~72 char max.
+
+### Types
+
+| Type      | When to use |
+|-----------|-------------|
+| `feat`    | New user-visible capability or feature surface. |
+| `fix`     | Bug fix; behavior change toward correctness. |
+| `docs`    | Documentation-only changes. |
+| `refactor`| Code change with no feature/fix. |
+| `test`    | Tests only — adding, hardening, backfilling. |
+| `chore`   | Dependency bumps, build hygiene, version bumps, maintenance. |
+| `perf`    | Performance improvement with no user-visible API change. |
+| `build`   | Build system or external dependency changes. |
+| `ci`      | CI configuration changes. |
+| `style`   | Formatting, whitespace, comment-only. |
+
+### Breaking changes
+
+A commit indicates a breaking change via EITHER:
+
+1. `!` appended to the type/scope: `feat!:`, `fix!(cli):`, `refactor!:`.
+2. A footer line in the body: `BREAKING CHANGE: <description>`.
+
+Use BOTH for high-visibility breaks (CLI flag removal, default behavior change, schema bump, runtime contract change).
+
+### Examples
+
+    feat: add nico-shadow desktop alias
+    fix: clarify shadow human review output
+    chore: bump version to v0.1.1
+    docs: add nico.platform.* boundary rule
+    refactor!(cli): rename nico work --ticket to --ticket-key
+
+    BREAKING CHANGE: `--ticket` removed; scripts must move to
+    `--ticket-key`.
+
+### Bump mapping
+
+| Commit pattern in `<last-tag>..HEAD`              | Bump  |
+|---------------------------------------------------|-------|
+| any `!` marker OR `BREAKING CHANGE:` footer       | major |
+| any `feat:` (no breaking markers)                 | minor |
+| only `fix:`, `docs:`, `chore:`, `refactor:`, etc. | patch |
+
+The skill SUGGESTS; the operator confirms. Major bumps require explicit operator confirmation even when the scan suggests major — never silently applied.
+
 ## Required Workflow
 
 1. Verify working tree and branch:
