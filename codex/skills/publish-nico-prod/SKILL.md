@@ -50,40 +50,72 @@ Push to OCI `main` only in explicit direct-publish mode, only with `--force-with
    - Record OCI `main` commit if it exists.
    - Confirm Bitbucket `main` is unchanged before and after publish.
 
-3. Build sanitized snapshot from Bitbucket dev `main`:
+3. Generate release notes and update the operator runbook on Bitbucket dev `main`:
+   - Determine the previous release version: `git describe --tags --abbrev=0` (use `nico-production/main` as the base if no prior tag exists).
+   - Run the release-notes generator in the nico-main checkout:
+
+     ```bash
+     uv run python scripts/release_notes.py \
+         --from <previous-tag-or-base> \
+         --to <bitbucket-remote>/main \
+         --version <new-version> \
+         --write docs/runbooks/nico-install-setup-onboarding.md
+     ```
+
+   - Stage and commit the runbook update on Bitbucket dev `main` with message `docs: release notes for <new-version>`.
+   - Push the commit to Bitbucket dev `main` so the sanitized snapshot built in the next step includes the up-to-date runbook.
+   - If `scripts/release_notes.py` does not exist in the nico-main checkout, stop and report; the skill depends on the generator.
+
+4. Build sanitized snapshot from Bitbucket dev `main`:
    - Use a temporary worktree or temporary directory.
    - Copy only allowed runtime source/config/docs needed for NICO prod operation.
    - Apply the exclude rules above.
    - Preserve executable bits where relevant.
    - Do not copy `.git`, local state, memory data, credentials, or generated artifacts.
 
-4. Create prod commit:
+5. Create prod commit:
    - If OCI `main` exists, base the snapshot commit on current OCI `main`.
    - If this is first publish and OCI `main` does not exist, create the first sanitized root commit.
    - Commit message should be conventional and concise, e.g. `chore: publish nico prod snapshot YYYY-MM-DD`.
 
-5. Verify sanitized tree:
+6. Verify sanitized tree:
    - Check `git status --short`.
    - Search for forbidden paths and file types.
    - Search for likely secrets.
    - Confirm tests/planning/dev artifacts are absent.
    - Confirm expected runtime entrypoints and config are present.
 
-6. Publish handoff branch to Bitbucket:
+7. Publish handoff branch to Bitbucket:
    - Push the sanitized snapshot commit to Bitbucket as `prod/oci-snapshot-YYYY-MM-DD`.
    - Verify Bitbucket remote branch points to the snapshot commit.
 
-7. Publish to OCI:
+8. Publish to OCI:
    - Default PR mode: push an OCI branch such as `prod/oci-snapshot-YYYY-MM-DD` and create the PR if available.
    - Direct publish mode, only when explicitly requested: update OCI `main` to the snapshot commit with `--force-with-lease`.
    - If no OCI PR tool/API is available, push the branch and report the exact branch/ref plus that PR creation was not completed.
 
-8. Clean stale OCI tags:
+9. Tag the published version:
+   - Create an annotated tag at the sanitized commit:
+
+     ```bash
+     git tag -a <new-version> <snapshot-commit> -m "NICO release <new-version>"
+     ```
+
+   - Push the tag to both remotes:
+
+     ```bash
+     git push <bitbucket-remote> <new-version>
+     git push <oci-remote> <new-version>
+     ```
+
+   - Verify the tag is reachable on both remotes via `git ls-remote --tags`.
+
+10. Clean stale OCI tags:
    - List OCI tags.
    - Delete stale OCI tags that point at old history when required by the publish plan.
    - Verify remaining OCI tags.
 
-9. Final verification:
+11. Final verification:
    - Verify OCI PR branch is at the snapshot commit for default PR mode.
    - Verify OCI `refs/heads/main` is at the snapshot commit only in explicit direct-publish mode.
    - Verify Bitbucket handoff branch is at the snapshot commit.
@@ -161,8 +193,10 @@ Review matches manually. Some source code identifiers are expected; real values 
 
 Keep the final response concise. Include:
 - Bitbucket dev `main` before/after commit.
+- Release notes version + path to updated runbook.
 - OCI `main` before/after commit, or OCI PR branch/PR identifier in PR mode.
 - Bitbucket handoff branch and commit.
+- Tag name + remotes it was pushed to.
 - Sanitization checks run and result.
 - Whether stale tags were found/deleted.
 - Any cleanup or unresolved blockers.
