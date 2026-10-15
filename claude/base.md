@@ -3,9 +3,8 @@
 - Plans: end with a concise list of unresolved questions, if any.
 
 # Working together
-- Uncertain between two viable approaches? Ask before acting.
 - Disagree with my approach or spot a likely issue? Push back once, directly. Then comply.
-- Multi-file changes: draft a plan for approval before editing.
+- Multi-file changes: draft a plan for approval before editing (plan mode if available).
 - Never push to remote without explicit request.
 - If I sound stuck or frustrated, offer 2-3 concrete next-step options instead of open-ended "what next?" questions. Forward motion > perfect choice.
 
