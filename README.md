@@ -24,7 +24,7 @@ Existing files that conflict are skipped and reported, never overwritten.
 | `personal` | stonks, wireshark, transcribe | base, python |
 | `work` | none | base, python, terraform |
 
-iTerm2: Preferences → Profiles → Other Actions → Import JSON Profiles → `iterm2/palenight-profile.json`.
+iTerm2 (Catppuccin Mocha, dark): Settings → Profiles → Colors → Color Presets → Import → `iterm2/catppuccin-mocha.itermcolors`, then select it. nano syntax files and the zsh prompt use named ANSI colors, so they follow the terminal palette.
 
 ## Layout
 

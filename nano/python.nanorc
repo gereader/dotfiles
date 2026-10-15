@@ -14,7 +14,7 @@ color brightcyan "def [[:alnum:]_]+"
 # Class definitions - yellow/orange 
 color brightyellow "class [[:alnum:]_]+"
 
-# Keywords - magenta/purple (Palenight keywords)
+# Keywords - magenta (Mocha pink)
 color brightmagenta "\<(and|as|assert|async|await|break|class|continue)\>"
 color brightmagenta "\<(def|del|elif|else|except|finally|for|from)\>"
 color brightmagenta "\<(global|if|import|in|is|lambda|nonlocal|not|or)\>"
@@ -38,9 +38,9 @@ color brightblue "(^|[[:blank:]])#.*"
 color yellow start="'''([^'),]|$)" end="(^|[^(\])'''"
 color yellow start=""""([^"),]|$)" end="(^|[^(\])""""
 
-# Backslash escapes - keep lime for now
-color lime "\\($|[\'"abfnrtv]|[0-3]?[0-7]?[0-7]|x[[:xdigit:]]{2})"
-color lime "\\(N\{[[:alpha:]]+\}|u[[:xdigit:]]{4}|U[[:xdigit:]]{8})"
+# Backslash escapes
+color green "\\($|[\'"abfnrtv]|[0-3]?[0-7]?[0-7]|x[[:xdigit:]]{2})"
+color green "\\(N\{[[:alpha:]]+\}|u[[:xdigit:]]{4}|U[[:xdigit:]]{8})"
 
 # Reminders - keep as is
 color brightwhite,yellow "\<(FIXME|TODO|XXX)\>"
