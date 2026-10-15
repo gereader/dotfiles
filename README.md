@@ -33,6 +33,7 @@ zsh/core.zsh          prompt, history, completion, aliases, loads ~/.zshrc.local
 zsh/optional/*.zsh    opt-in modules, enabled via DOTFILES_MODULES in ~/.zshrc.local
 claude/base.md        portable Claude Code instructions
 claude/lang/*.md      language-specific instructions
+claude/statusline.sh  status line; point `statusLine.command` at it in ~/.claude/settings.json
 scripts/              helpers (vtt_merge.py for transcribe)
 nano/  iterm2/  transcribe/
 ```

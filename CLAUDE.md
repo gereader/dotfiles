@@ -8,6 +8,7 @@ Personal macOS dotfiles. Installed additively: `install.sh` appends a `source` l
 - `zsh/optional/*.zsh`: opt-in functions (stonks, wireshark, transcribe)
 - `claude/base.md`, `claude/lang/*.md`: global Claude Code instructions, imported via `@` from `~/.claude/CLAUDE.md`
 - `scripts/vtt_merge.py`: used by `transcribe` module
+- `claude/statusline.sh`: Mocha status line; not wired by install.sh (per-machine `statusLine` in `~/.claude/settings.json`)
 - `iterm2/catppuccin-mocha.itermcolors`: color preset (dark). nano and prompt use named ANSI colors so they inherit it; keep it that way
 
 ## Rules
