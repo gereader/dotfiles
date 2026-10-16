@@ -57,6 +57,7 @@ export VISUAL=nano
 # Quick jumps to common directories
 alias dev='cd ~/Developer'
 alias devp='cd ~/Developer/personal'
+alias devw='cd ~/Developer/work'
 alias devo='cd ~/Developer/opensource'
 
 # --- Enhanced Command Aliases ---
